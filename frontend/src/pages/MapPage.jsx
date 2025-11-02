@@ -149,23 +149,27 @@ const MapPage = () => {
       {/* Backend response */}
       {routeData && (
         <div
-          style={{
-            position: "absolute",
-            bottom: "10px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            backgroundColor: "white",
-            padding: "15px",
-            borderRadius: "10px",
-            zIndex: 1000,
-            boxShadow: "0px 2px 10px rgba(0,0,0,0.2)",
-            textAlign: "center"
-          }}
-        >
-        <h4>Result:</h4>
-        <p>
-            Distance: <b>{routeData.distance}</b><br />
-            Duration: <b>{routeData.duration}</b>
+        style={{
+          position: "absolute",
+          bottom: "15px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "#0e0e0e", // dark background
+          color: "#e0e0e0",
+          padding: "20px 25px",
+          borderRadius: "12px",
+          zIndex: 1000,
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.6)",
+          textAlign: "center",
+          border: "1px solid #007bff",
+        }}
+      >
+        <h4 style={{ color: "#007bff", marginBottom: "10px" }}>Result</h4>
+        <p style={{ fontSize: "16px", margin: "5px 0" }}>
+          Distance: <b style={{ color: "#ff0000" }}>{routeData.distance}</b>
+        </p>
+        <p style={{ fontSize: "16px", margin: "5px 0" }}>
+          Duration: <b style={{ color: "#ff0000" }}>{routeData.duration}</b>
         </p>
         <button 
             onClick={() =>
@@ -174,12 +178,13 @@ const MapPage = () => {
             style={{
                 marginTop: "10px",
                 padding: "10px 20px",
-                backgroundColor: "#4CAF50",
-                color: "white",
+                backgroundColor: "#007bff",
+                color: "#fff",
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontWeight: "bold",
+                transition: "all 0.3s ease"
             }}
         >
             View Co2 Savings 

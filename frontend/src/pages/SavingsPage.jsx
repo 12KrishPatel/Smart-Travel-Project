@@ -52,7 +52,7 @@ const SavingsPage = () => {
 
       <input
         type="text"
-        placeholder="Distance (mi or km)"
+        placeholder="Distance (km)"
         value={distance}
         onChange={(e) => setDistance(e.target.value)}
         style={{ padding: "10px", margin: "10px", width: "200px" }}

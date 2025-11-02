@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
     "axios": "^1.13.1",
+    "framer-motion": "^12.23.24",
     "leaflet": "^1.9.4",
     "polyline": "^0.2.0",
     "react": "^19.1.1",

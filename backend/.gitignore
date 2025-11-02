@@ -1,6 +1,46 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+*.so
+
+# --- Virtual Environment ---
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# --- Environment & Config ---
 .env
 *.env
-__pycache__/
-venv/
-*.pyc
+.env.*
+!.env.example
+
+# --- IDE / OS Files ---
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
+
+# --- Logs & Caches ---
+*.log
+*.sqlite3
+*.db
+*.pid
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# --- Python build ---
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- FastAPI / Uvicorn ---
+*.pid
+*.sock

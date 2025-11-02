@@ -1,26 +1,43 @@
-# Logs
-logs
+# --- Node & Vite ---
+node_modules/
+dist/
+build/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# --- Local Environment Files ---
 .env
 *.env
+.env.*
+!.env.example
+
+# --- Vite / React ---
+.DS_Store
+.vscode/
+.idea/
+*.local
+coverage/
+*.cache
+.cache/
+vite.config.ts.timestamp-*
+
+# --- OS Generated Files ---
+Thumbs.db
+Desktop.ini
+
+# --- Testing ---
+jest/
+coverage/
+cypress/
+playwright-report/
+test-results/
+
+# --- Misc ---
+*.swp
+*.swo

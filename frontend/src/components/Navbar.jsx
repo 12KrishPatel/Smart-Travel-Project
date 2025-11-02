@@ -1,19 +1,23 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
+import "./Navbar.css"; 
 
-function Navbar() {
-    return (
-        <nav style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '30px',
-            padding: '15px',
-            backgroundColor: '#1a1a1a',
-            color: 'white'
-        }}>
-            <Link to="/" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🗺️ Map</Link>
-            <Link to="/savings" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🌱 CO₂ Tracker</Link>
-        </nav>
-    )
-}
+const Navbar = () => {
+  const navItems = [
+    { name: "Map", path: "/" },
+    { name: "CO₂ Savings", path: "/savings" },
+  ];
 
-export default Navbar
+  return (
+    <nav className="navbar">
+      <div className="navbar-container">
+        {navItems.map((item) => (
+          <Link key={item.name} to={item.path} className="nav-link">
+            {item.name}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

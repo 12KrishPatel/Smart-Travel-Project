@@ -2,6 +2,8 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-
 import { useState, useEffect } from "react";
 import axios from "axios";
 import polyline from "polyline";
+import { useNavigate } from "react-router-dom";
+
 
 const MapPage = () => {
   const [position, setPosition] = useState(null);
@@ -11,6 +13,7 @@ const MapPage = () => {
   const [mode, setMode] = useState("driving");
   const [routeData, setRouteData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
 
   // Ask for user location once on load
@@ -156,10 +159,31 @@ const MapPage = () => {
             borderRadius: "10px",
             zIndex: 1000,
             boxShadow: "0px 2px 10px rgba(0,0,0,0.2)",
+            textAlign: "center"
           }}
         >
-          <h4>Result:</h4>
-          <pre style={{ margin: 0 }}>{JSON.stringify(routeData, null, 2)}</pre>
+        <h4>Result:</h4>
+        <p>
+            Distance: <b>{routeData.distance}</b><br />
+            Duration: <b>{routeData.duration}</b>
+        </p>
+        <button 
+            onClick={() =>
+                navigate("/savings", { state: {distance: routeData.distance}})
+            }
+            style={{
+                marginTop: "10px",
+                padding: "10px 20px",
+                backgroundColor: "#4CAF50",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "bold",
+            }}
+        >
+            View Co2 Savings 
+        </button>
         </div>
       )}
     </div>

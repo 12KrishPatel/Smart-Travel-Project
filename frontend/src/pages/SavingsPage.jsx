@@ -78,12 +78,12 @@ const SavingsPage = () => {
 
       {results.length > 0 && ( // Replaced single saving with all comparisons
         <div style={{ marginTop: "20px" }}>
-          <h3>CO₂ Savings Compared to Other Modes:</h3>
+          <h3>CO₂ Waste Compared to Other Modes:</h3>
           <ul style={{ listStyle: "none", padding: 0 }}>
             {results.map((r) => (
               <li key={r.mode} style={{ marginBottom: "10px" }}>
                 <b>{r.mode.charAt(0).toUpperCase() + r.mode.slice(1)}</b>:{" "}
-                {r.saved.toFixed(0)} g saved
+                {r.saved.toFixed(0)} g wasted
               </li>
             ))}
           </ul>

@@ -65,6 +65,18 @@ const MapPage = () => {
     setLoading(false);
   };
 
+  function FitBounds({routeCoords}){
+    const map = useMap();
+
+    useEffect(() => {
+        if(routeCoords.length > 0){
+            const bounds = routeCoords.map((coord) => [coord.lat, coord.lng]);
+            map.fitBounds(bounds, {padding: [50, 50]});
+        }
+    }, [routeCoords, map]);
+    return null
+  }
+
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
       {/*Input controls*/}
@@ -121,7 +133,11 @@ const MapPage = () => {
             <Popup>Your current location 🌍</Popup>
           </Marker>
             {routeCoords.length > 0 && (
-                <Polyline positions={routeCoords} color="blue" weight={5} />
+                <>
+                <Polyline positions={routeCoords} color="blue" weight={5}/>
+                <FitBounds routeCoords={routeCoords} />
+                </>
+
             )}
 
         </MapContainer>

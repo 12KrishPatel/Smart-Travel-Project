@@ -102,18 +102,37 @@ const MapPage = () => {
           value={origin}
           onChange={(e) => setOrigin(e.target.value)}
           placeholder="Origin"
-          style={{ padding: "6px 8px" }}
+          style={{ 
+            padding: "6px 8px",
+            backgroundColor: "#36454F",
+            color: "#fff",
+            border: "2px solid #007bff",
+            borderRadius: "8px",
+           }}
         />
         <input
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
           placeholder="Destination"
-          style={{ padding: "6px 8px" }}
+          style={{ 
+            padding: "6px 8px", 
+            backgroundColor: "#36454F",
+            color: "#fff",
+            border: "2px solid #007bff",
+            borderRadius: "8px",
+          
+          }}
         />
         <select
           value={mode}
           onChange={(e) => setMode(e.target.value)}
-          style={{ padding: "6px 8px" }}
+          style={{ 
+            padding: "6px 8px",
+            backgroundColor: "#36454F",
+            color: "#fff",
+            border: "2px solid #007bff",
+            borderRadius: "8px",
+           }}
         >
           <option value="driving">🚗 Driving</option>
           <option value="walking">🚶 Walking</option>
@@ -149,46 +168,54 @@ const MapPage = () => {
       {/* Backend response */}
       {routeData && (
         <div
-        style={{
-          position: "absolute",
-          bottom: "15px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "#0e0e0e", // dark background
-          color: "#e0e0e0",
-          padding: "20px 25px",
-          borderRadius: "12px",
-          zIndex: 1000,
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.6)",
-          textAlign: "center",
-          border: "1px solid #007bff",
-        }}
-      >
-        <h4 style={{ color: "#007bff", marginBottom: "10px" }}>Result</h4>
-        <p style={{ fontSize: "16px", margin: "5px 0" }}>
-          Distance: <b style={{ color: "#ff0000" }}>{routeData.distance}</b>
-        </p>
-        <p style={{ fontSize: "16px", margin: "5px 0" }}>
-          Duration: <b style={{ color: "#ff0000" }}>{routeData.duration}</b>
-        </p>
-        <button 
+          style={{
+            position: "absolute",
+            bottom: "15px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#36454F", // charcoal gray background
+            color: "#fff",
+            padding: "20px 25px",
+            borderRadius: "12px",
+            zIndex: 1000,
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.6)",
+            textAlign: "center",
+            border: "1px solid #007bff",
+            width: "fit-content",
+            minWidth: "280px"
+          }}
+        >
+          <h4 style={{ color: "#007bff", marginBottom: "10px", fontSize: "20px" }}>Result</h4>
+
+          <p style={{ fontSize: "16px", margin: "5px 0" }}>
+            Distance: <b style={{ color: "#ff0000" }}>{routeData.distance}</b>
+          </p>
+          <p style={{ fontSize: "16px", margin: "5px 0" }}>
+            Duration: <b style={{ color: "#ff0000" }}>{routeData.duration}</b>
+          </p>
+
+          <button
             onClick={() =>
-                navigate("/savings", { state: {distance: routeData.distance}})
+              navigate("/savings", { state: { distance: routeData.distance } })
             }
             style={{
-                marginTop: "10px",
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                transition: "all 0.3s ease"
+              marginTop: "12px",
+              padding: "10px 20px",
+              backgroundColor: "#007bff",
+              color: "#fff",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              fontSize: "15px",
+              transition: "all 0.3s ease",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
             }}
-        >
-            View Co2 Savings 
-        </button>
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#ff0000")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#007bff")}
+          >
+            View CO₂ Savings
+          </button>
         </div>
       )}
     </div>

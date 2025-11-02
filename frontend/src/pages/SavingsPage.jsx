@@ -7,9 +7,9 @@ const SavingsPage = () => {
 
   const [distance, setDistance] = useState(passedDistance);
   const [mode, setMode] = useState("driving");
-  const [savedCO2, setSavedCO2] = useState(null);
+  const [results, setResults] = useState([]);
 
-  // CO2 emissions in grams per km
+  // CO2 emissions in grams per km (avg across modes)
   const emissionRates = {
     driving: 192,
     transit: 105,
@@ -27,10 +27,16 @@ const SavingsPage = () => {
     const km = convertMilesToKm(dist);
     if (isNaN(km) || km <= 0) return;
 
-    const carCO2 = km * emissionRates.driving;
     const chosenCO2 = km * emissionRates[mode];
-    const saved = carCO2 - chosenCO2;
-    setSavedCO2(saved);
+
+    const newResults = Object.entries(emissionRates)
+      .filter(([m]) => m !== mode) //Exclude users mode of transport
+      .map(([m, rate]) => {
+        const diff = chosenCO2 - km * rate
+        const saved = diff > 0 ? diff : 0; // no negatives
+        return {mode :m, saved};
+      })
+    setResults(newResults);
   };
 
   // Automatically calculate when distance comes from MapPage
@@ -42,11 +48,11 @@ const SavingsPage = () => {
 
   return (
     <div style={{ padding: "30px", textAlign: "center" }}>
-      <h2>🌿 CO₂ Savings Tracker</h2>
+      <h2>CO₂ Savings Comparison</h2>
 
       <input
         type="text"
-        placeholder="Distance (km)"
+        placeholder="Distance (mi or km)"
         value={distance}
         onChange={(e) => setDistance(e.target.value)}
         style={{ padding: "10px", margin: "10px", width: "200px" }}
@@ -57,17 +63,30 @@ const SavingsPage = () => {
         onChange={(e) => setMode(e.target.value)}
         style={{ padding: "10px", margin: "10px" }}
       >
-        <option value="driving">🚗 Driving</option>
-        <option value="transit">🚌 Transit</option>
-        <option value="bicycling">🚴 Bicycling</option>
-        <option value="walking">🚶 Walking</option>
+        <option value="driving">Driving</option>
+        <option value="transit">Public Transit</option>
+        <option value="bicycling">Bicycling</option>
+        <option value="walking">Walking</option>
       </select>
 
-      {savedCO2 !== null && (
+      <button
+        onClick={() => calculateSavings(distance)}
+        style={{ padding: "10px 20px" }}
+      >
+        Calculate
+      </button>
+
+      {results.length > 0 && ( // Replaced single saving with all comparisons
         <div style={{ marginTop: "20px" }}>
-          <h3>
-            You saved <b>{savedCO2.toFixed(0)} g CO₂</b> compared to driving!
-          </h3>
+          <h3>CO₂ Savings Compared to Other Modes:</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {results.map((r) => (
+              <li key={r.mode} style={{ marginBottom: "10px" }}>
+                <b>{r.mode.charAt(0).toUpperCase() + r.mode.slice(1)}</b>:{" "}
+                {r.saved.toFixed(0)} g saved
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

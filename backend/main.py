@@ -53,7 +53,7 @@ def calculate_route(request: RouteRequest):
     }
     return route_info
 
-# 🟩 Serve the Maps JS URL safely
+# Get the Maps JS URL safely
 @app.get("/api/maps-key")
 def get_maps_key():
     api_key = os.getenv("GOOGLE_MAPS_API_KEY")

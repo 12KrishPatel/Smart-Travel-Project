@@ -14,7 +14,7 @@ const MapPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const originHostRef = useRef(null);
+  const originHostRef = useRef(null);s
   const destHostRef = useRef(null);
 
   // Ask for user's current position once
@@ -88,7 +88,7 @@ const MapPage = () => {
     };
 
     script.onerror = () => {
-      console.error("[Maps] ❌ Failed to load Maps JS API. Check API key restrictions.");
+      console.error("[Maps] Failed to load Maps JS API. Check API key restrictions.");
     };
 
     document.head.appendChild(script);
@@ -173,10 +173,10 @@ const MapPage = () => {
             borderRadius: "8px",
           }}
         >
-          <option value="driving">🚗 Driving</option>
-          <option value="walking">🚶 Walking</option>
-          <option value="bicycling">🚴 Bicycling</option>
-          <option value="transit">🚌 Transit</option>
+          <option value="driving"> Driving</option>
+          <option value="walking"> Walking</option>
+          <option value="bicycling"> Bicycling</option>
+          <option value="transit"> Transit</option>
         </select>
 
         <button onClick={calculateRoute} style={{ padding: "6px 10px" }}>
@@ -189,7 +189,7 @@ const MapPage = () => {
         <MapContainer center={position} zoom={12} style={{ height: "100%", width: "100%" }}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Marker position={position}>
-            <Popup>Your current location 🌍</Popup>
+            <Popup>Your current location</Popup>
           </Marker>
           {routeCoords.length > 0 && (
             <>

@@ -170,7 +170,7 @@ const MapPage = () => {
         <div
           style={{
             position: "absolute",
-            bottom: "15px",
+            bottom: "60px",
             left: "50%",
             transform: "translateX(-50%)",
             background: "#36454F", // charcoal gray background
@@ -182,7 +182,9 @@ const MapPage = () => {
             textAlign: "center",
             border: "1px solid #007bff",
             width: "fit-content",
-            minWidth: "280px"
+            minWidth: "280px",
+            opacity: "0", 
+            animation: "fadeUp 0.6s ease forwards" // Adds the animation for the results box
           }}
         >
           <h4 style={{ color: "#007bff", marginBottom: "10px", fontSize: "20px" }}>Result</h4>

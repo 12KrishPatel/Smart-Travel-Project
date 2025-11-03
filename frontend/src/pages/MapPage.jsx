@@ -16,6 +16,8 @@ const MapPage = () => {
 
   const originHostRef = useRef(null);
   const destHostRef = useRef(null);
+  const originValueRef = useRef("");
+  const destValueRef = useRef("");
 
   // Ask for user's current position once
   useEffect(() => {
@@ -29,35 +31,61 @@ const MapPage = () => {
 
   // Initialize autocomplete boxes
   const initAutocomplete = async () => {
+    if (window.__autocompleteInitialized) return;
+    window.__autocompleteInitialized = true;
+  
     console.log("[Maps] Initializing autocomplete…");
-
+  
     try {
-      const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
-
-      // Clear existing boxes to avoid duplicates
-      if (originHostRef.current) originHostRef.current.innerHTML = "";
-      if (destHostRef.current) destHostRef.current.innerHTML = "";
-
-      // Create new autocomplete boxes
-      const originEl = new PlaceAutocompleteElement();
-      const destEl = new PlaceAutocompleteElement();
-
-      // Listen for place selections
-      originEl.addEventListener("gmpx-placechange", (e) => {
-        const place = e.target.value;
-        console.log("[Origin selected]", place);
-        setOrigin(place?.formattedAddress || "");
+      const { Autocomplete } = await google.maps.importLibrary("places");
+      
+      // Create regular input elements
+      const originInput = document.createElement('input');
+      originInput.type = 'text';
+      originInput.placeholder = 'Enter origin';
+      originInput.style.cssText = 'width: 100%; height: 100%; padding: 8px; border: 1px solid #ccc; borderRadius: 4px; boxSizing: border-box;';
+      
+      const destInput = document.createElement('input');
+      destInput.type = 'text';
+      destInput.placeholder = 'Enter destination';
+      destInput.style.cssText = 'width: 100%; height: 100%; padding: 8px; border: 1px solid #ccc; borderRadius: 4px; boxSizing: border-box;';
+      
+      // Clear and add inputs
+      if (originHostRef.current) {
+        originHostRef.current.innerHTML = "";
+        originHostRef.current.appendChild(originInput);
+      }
+      if (destHostRef.current) {
+        destHostRef.current.innerHTML = "";
+        destHostRef.current.appendChild(destInput);
+      }
+      
+      // Create autocomplete instances
+      const originAutocomplete = new Autocomplete(originInput);
+      const destAutocomplete = new Autocomplete(destInput);
+      
+      // Listen for place selection
+      originAutocomplete.addListener('place_changed', () => {
+        const place = originAutocomplete.getPlace();
+        console.log("✓ Origin place selected:", place);
+        if (place.formatted_address) {
+          originValueRef.current = place.formatted_address;
+          setOrigin(place.formatted_address);
+          console.log("✓ Origin stored:", place.formatted_address);
+        }
       });
-
-      destEl.addEventListener("gmpx-placechange", (e) => {
-        const place = e.target.value;
-        console.log("[Destination selected]", place);
-        setDestination(place?.formattedAddress || "");
+      
+      destAutocomplete.addListener('place_changed', () => {
+        const place = destAutocomplete.getPlace();
+        console.log("✓ Dest place selected:", place);
+        if (place.formatted_address) {
+          destValueRef.current = place.formatted_address;
+          setDestination(place.formatted_address);
+          console.log("✓ Dest stored:", place.formatted_address);
+        }
       });
-
-      // Attach to container refs
-      if (originHostRef.current) originHostRef.current.appendChild(originEl);
-      if (destHostRef.current) destHostRef.current.appendChild(destEl);
+      
+      console.log("Classic autocomplete setup complete");
     } catch (err) {
       console.error("[Maps] initAutocomplete failed:", err);
     }
@@ -65,57 +93,90 @@ const MapPage = () => {
 
   // Load the Google Maps script once, verify key works
   useEffect(() => {
-    if (window.__mapsInitialized) {
-      console.log("[Maps] Already loaded, skipping reload");
+    // Skip if already loaded and initialized
+    if (window.__mapsInitialized && window.__autocompleteInitialized) {
+      console.log("[Maps] Already loaded — skipping reload");
+      return;
+    }
+
+    // Skip if currently loading
+    if (window.__mapsLoading) {
+      console.log("[Maps] Already loading — waiting");
       return;
     }
 
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      console.error("[Maps] Missing API key! Check your .env file");
+      console.error("[Maps] Missing API key! Check .env file");
       return;
     }
 
+    // Check if script already exists in DOM
+    const existingScript = document.querySelector(
+      'script[src*="maps.googleapis.com"]'
+    );
+    
+    if (existingScript) {
+      console.log("[Maps] Script already in DOM");
+      // If script exists but not initialized, wait for it
+      if (window.google?.maps?.places && !window.__autocompleteInitialized) {
+        initAutocomplete();
+      }
+      return;
+    }
+
+    window.__mapsLoading = true;
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;
     script.defer = true;
-
     script.onload = () => {
       console.log("[Maps] Script loaded successfully");
       window.__mapsInitialized = true;
+      window.__mapsLoading = false;
       initAutocomplete();
     };
-
     script.onerror = () => {
-      console.error("[Maps] Failed to load Maps JS API. Check API key restrictions.");
+      console.error("[Maps] Script failed to load");
+      window.__mapsLoading = false;
     };
-
     document.head.appendChild(script);
+
+    // Cleanup function
+    return () => {
+      window.__mapsLoading = false;
+    };
   }, []);
 
-  // Backend route calculation
+  // Backend route calc
   const calculateRoute = async () => {
-    if (!origin || !destination) {
-      alert("Enter both origin and destination!");
+    // Use the ref values that were set by the autocomplete listeners
+    const originValue = originValueRef.current || origin;
+    const destValue = destValueRef.current || destination;
+  
+    console.log("Final origin value:", originValue);
+    console.log("Final dest value:", destValue);
+    
+    if (!originValue || !destValue) {
+      alert("Please select both origin and destination from the autocomplete!");
       return;
     }
-
+  
     setLoading(true);
     try {
-      console.log("[Route] Requesting route for:", origin, "→", destination);
+      console.log("[Route] Requesting route for:", originValue, "→", destValue);
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/calculate-route`, {
-        origin,
-        destination,
+        origin: originValue,
+        destination: destValue,
         mode,
       });
-
+  
       const data = res.data;
       if (data.error) {
         alert("Backend error: " + data.error);
         console.error("[Route] Error:", data.details);
       }
-
+  
       setRouteData(data);
       if (data.polyline) {
         const decoded = polyline.decode(data.polyline);
@@ -173,10 +234,10 @@ const MapPage = () => {
             borderRadius: "8px",
           }}
         >
-          <option value="driving"> Driving</option>
-          <option value="walking"> Walking</option>
-          <option value="bicycling"> Bicycling</option>
-          <option value="transit"> Transit</option>
+          <option value="driving">🚗 Driving</option>
+          <option value="walking">🚶 Walking</option>
+          <option value="bicycling">🚴 Bicycling</option>
+          <option value="transit">🚌 Transit</option>
         </select>
 
         <button onClick={calculateRoute} style={{ padding: "6px 10px" }}>

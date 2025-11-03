@@ -14,7 +14,7 @@ const MapPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const originHostRef = useRef(null);s
+  const originHostRef = useRef(null);
   const destHostRef = useRef(null);
 
   // Ask for user's current position once

@@ -20,10 +20,10 @@ It helps users plan routes, visualize them on an interactive map, and track thei
 | Layer | Technology |
 |-------|-------------|
 | Frontend | React + Vite + React-Leaflet + Axios |
-| Backend | FastAPI + Python-Dotenv + Requests |
+| Backend | Python-Dotenv + Requests |
 | APIs | Google Maps Directions API, Geocoding API |
 | Styling | Inline CSS (customizable) |
-| Deployment | Works locally or on cloud (Render, Railway, etc.) |
+| Deployment | Works locally |
 
 ---
 

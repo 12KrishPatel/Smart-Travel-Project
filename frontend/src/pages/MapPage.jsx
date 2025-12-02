@@ -18,6 +18,8 @@ const MapPage = () => {
   const destHostRef = useRef(null);
   const originValueRef = useRef("");
   const destValueRef = useRef("");
+  const originAutocompleteRef = useRef(null);
+  const destAutocompleteRef = useRef(null);
 
   // Ask for user's current position once
   useEffect(() => {
@@ -31,8 +33,11 @@ const MapPage = () => {
 
   // Initialize autocomplete boxes
   const initAutocomplete = async () => {
-    if (window.__autocompleteInitialized) return;
-    window.__autocompleteInitialized = true;
+    // Check if refs are available
+    if (!originHostRef.current || !destHostRef.current) {
+      console.log("[Maps] Refs not ready yet");
+      return;
+    }
   
     console.log("[Maps] Initializing autocomplete…");
   
@@ -51,18 +56,18 @@ const MapPage = () => {
       destInput.style.cssText = 'width: 100%; height: 100%; padding: 8px; border: 1px solid #ccc; borderRadius: 4px; boxSizing: border-box;';
       
       // Clear and add inputs
-      if (originHostRef.current) {
-        originHostRef.current.innerHTML = "";
-        originHostRef.current.appendChild(originInput);
-      }
-      if (destHostRef.current) {
-        destHostRef.current.innerHTML = "";
-        destHostRef.current.appendChild(destInput);
-      }
+      originHostRef.current.innerHTML = "";
+      originHostRef.current.appendChild(originInput);
+      destHostRef.current.innerHTML = "";
+      destHostRef.current.appendChild(destInput);
       
       // Create autocomplete instances
       const originAutocomplete = new Autocomplete(originInput);
       const destAutocomplete = new Autocomplete(destInput);
+      
+      // Store references for cleanup
+      originAutocompleteRef.current = originAutocomplete;
+      destAutocompleteRef.current = destAutocomplete;
       
       // Listen for place selection
       originAutocomplete.addListener('place_changed', () => {
@@ -91,20 +96,8 @@ const MapPage = () => {
     }
   };
 
-  // Load the Google Maps script once, verify key works
+  // Load the Google Maps script and initialize autocomplete
   useEffect(() => {
-    // Skip if already loaded and initialized
-    if (window.__mapsInitialized && window.__autocompleteInitialized) {
-      console.log("[Maps] Already loaded — skipping reload");
-      return;
-    }
-
-    // Skip if currently loading
-    if (window.__mapsLoading) {
-      console.log("[Maps] Already loading — waiting");
-      return;
-    }
-
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       console.error("[Maps] Missing API key! Check .env file");
@@ -116,37 +109,66 @@ const MapPage = () => {
       'script[src*="maps.googleapis.com"]'
     );
     
+    const initializeAutocomplete = async () => {
+      // Wait a bit for refs to be ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      if (window.google?.maps?.places) {
+        initAutocomplete();
+      } else {
+        console.log("[Maps] Google Maps API not ready yet");
+      }
+    };
+    
     if (existingScript) {
       console.log("[Maps] Script already in DOM");
-      // If script exists but not initialized, wait for it
-      if (window.google?.maps?.places && !window.__autocompleteInitialized) {
-        initAutocomplete();
+      // Script exists, check if API is ready
+      if (window.google?.maps?.places) {
+        initializeAutocomplete();
+      } else {
+        // Wait for the script to finish loading
+        const checkInterval = setInterval(() => {
+          if (window.google?.maps?.places) {
+            clearInterval(checkInterval);
+            initializeAutocomplete();
+          }
+        }, 100);
+        
+        // Cleanup interval after 5 seconds if still not loaded
+        setTimeout(() => clearInterval(checkInterval), 5000);
       }
-      return;
+    } else {
+      // Script doesn't exist, create it
+      if (window.__mapsLoading) {
+        console.log("[Maps] Already loading — waiting");
+        return;
+      }
+
+      window.__mapsLoading = true;
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        console.log("[Maps] Script loaded successfully");
+        window.__mapsInitialized = true;
+        window.__mapsLoading = false;
+        initializeAutocomplete();
+      };
+      script.onerror = () => {
+        console.error("[Maps] Script failed to load");
+        window.__mapsLoading = false;
+      };
+      document.head.appendChild(script);
     }
 
-    window.__mapsLoading = true;
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      console.log("[Maps] Script loaded successfully");
-      window.__mapsInitialized = true;
-      window.__mapsLoading = false;
-      initAutocomplete();
-    };
-    script.onerror = () => {
-      console.error("[Maps] Script failed to load");
-      window.__mapsLoading = false;
-    };
-    document.head.appendChild(script);
-
-    // Cleanup function
+    // Cleanup function - clear autocomplete refs when component unmounts
     return () => {
-      window.__mapsLoading = false;
+      originAutocompleteRef.current = null;
+      destAutocompleteRef.current = null;
     };
   }, []);
+
 
   // Backend route calc
   const calculateRoute = async () => {

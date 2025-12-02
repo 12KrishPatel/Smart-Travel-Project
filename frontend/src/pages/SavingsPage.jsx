@@ -24,8 +24,23 @@ const SavingsPage = () => {
   };
 
   const calculateSavings = (dist = distance) => {
+    // Input validation
+    if (!dist || dist.trim().length === 0) {
+      alert("Please enter a distance!");
+      return;
+    }
+
     const km = convertMilesToKm(dist);
-    if (isNaN(km) || km <= 0) return;
+
+    if (isNaN(km) || km <= 0) {
+      alert("Please enter a valid positive distance!");
+      return;
+    }
+
+    if (km > 50000) {
+      alert("Distance is too large. Please enter a realistic distance.");
+      return;
+    }
 
     const chosenCO2 = km * emissionRates[mode];
 

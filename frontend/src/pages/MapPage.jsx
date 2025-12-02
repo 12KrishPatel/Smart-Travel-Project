@@ -175,40 +175,65 @@ const MapPage = () => {
     // Use the ref values that were set by the autocomplete listeners
     const originValue = originValueRef.current || origin;
     const destValue = destValueRef.current || destination;
-  
-    console.log("Final origin value:", originValue);
-    console.log("Final dest value:", destValue);
-    
+
+    // Input validation
     if (!originValue || !destValue) {
       alert("Please select both origin and destination from the autocomplete!");
       return;
     }
-  
+
+    if (originValue.trim().length === 0 || destValue.trim().length === 0) {
+      alert("Origin and destination cannot be empty!");
+      return;
+    }
+
+    if (originValue.length > 500 || destValue.length > 500) {
+      alert("Location string is too long. Please use a shorter address.");
+      return;
+    }
+
     setLoading(true);
     try {
-      console.log("[Route] Requesting route for:", originValue, "→", destValue);
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/calculate-route`, {
-        origin: originValue,
-        destination: destValue,
-        mode,
-      });
-  
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/calculate-route`,
+        {
+          origin: originValue,
+          destination: destValue,
+          mode,
+        },
+        {
+          timeout: 15000, // 15 second timeout
+        }
+      );
+
       const data = res.data;
-      if (data.error) {
-        alert("Backend error: " + data.error);
-        console.error("[Route] Error:", data.details);
-      }
-  
       setRouteData(data);
+
       if (data.polyline) {
         const decoded = polyline.decode(data.polyline);
         setRouteCoords(decoded.map(([lat, lng]) => ({ lat, lng })));
       }
     } catch (err) {
-      console.error("[Route] Connection error:", err);
-      alert("Could not reach backend.");
+      console.error("[Route] Error:", err);
+
+      // Handle different error types
+      if (err.response) {
+        // Backend returned an error response
+        const errorMsg = err.response.data?.detail || "Failed to calculate route";
+        alert(`Error: ${errorMsg}`);
+      } else if (err.request) {
+        // Request was made but no response received
+        alert("Could not reach backend server. Please make sure it's running on " + import.meta.env.VITE_API_URL);
+      } else if (err.code === 'ECONNABORTED') {
+        // Request timeout
+        alert("Request timed out. Please try again.");
+      } else {
+        // Something else happened
+        alert("An unexpected error occurred: " + err.message);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // Auto-fit bounds for the route

@@ -109,16 +109,19 @@ Smart-Travel-Project/
 
 ### Environment Variables
 
-1. **Backend** - Create a `.env` file in the `backend/` directory:
+1. **Backend** - Copy `.env.example` to `.env` in the `backend/` directory and fill in your values:
    ```env
    GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   ALLOWED_ORIGINS=http://localhost:5173
    ```
 
-2. **Frontend** - Create a `.env` file in the `frontend/` directory:
+2. **Frontend** - Copy `.env.example` to `.env` in the `frontend/` directory and fill in your values:
    ```env
    VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
    VITE_API_URL=http://localhost:8000
    ```
+
+**Note**: Both `.env.example` files are provided in the repository as templates.
 
 ### Running the Application
 
@@ -241,15 +244,78 @@ For production, update `VITE_API_URL` in the frontend `.env` to point to your de
 
 ---
 
-## 🔐 Security Notes
+## 🔐 Security Best Practices
 
-- **API Keys**: Never commit API keys to version control
-- **CORS**: Currently configured to allow all origins (`*`) - restrict in production
-- **Environment Variables**: Always use `.env` files for sensitive data
-- **API Key Restrictions**: Configure Google Cloud Console to restrict API key usage by:
-  - HTTP referrer (for frontend)
-  - IP address (for backend)
-  - API restrictions (only enable needed APIs)
+### ✅ Implemented Security Features
+
+1. **CORS Protection**
+   - Backend now restricts CORS to specific origins configured via `ALLOWED_ORIGINS` environment variable
+   - Default: `http://localhost:5173` (development)
+   - Production: Set to your actual frontend domain(s)
+
+2. **API Key Protection**
+   - Backend API key is never exposed to clients
+   - Route calculations are performed server-side only
+   - Removed `/api/maps-key` endpoint that previously exposed the key
+
+3. **Input Validation**
+   - Backend validates all route requests with Pydantic models
+   - Location strings are validated for length and content
+   - Transportation mode is restricted to valid options only
+   - Frontend validates inputs before sending to backend
+
+4. **Error Handling**
+   - Comprehensive error handling prevents crashes
+   - User-friendly error messages (no sensitive info leaked)
+   - Request timeouts prevent hanging connections (15 seconds)
+   - Proper HTTP status codes for different error types
+
+5. **Environment Variables**
+   - All sensitive data stored in `.env` files
+   - `.env.example` templates provided
+   - `.gitignore` configured to prevent committing secrets
+
+### 🔒 Additional Security Setup Required
+
+**Configure Google Cloud Console API Key Restrictions:**
+
+1. **Backend API Key** (used server-side):
+   - Go to [Google Cloud Console](https://console.cloud.google.com/google/maps-apis/credentials)
+   - Edit your backend API key
+   - Under "Application restrictions": Select "IP addresses"
+   - Add your server's IP address(es)
+   - Under "API restrictions": Select "Restrict key" and enable only:
+     - Directions API
+     - Geocoding API (if needed)
+
+2. **Frontend API Key** (used for Places Autocomplete):
+   - Create a separate API key for frontend use
+   - Under "Application restrictions": Select "HTTP referrers (web sites)"
+   - Add your domain(s):
+     - `localhost:5173/*` (development)
+     - `yourdomain.com/*` (production)
+   - Under "API restrictions": Select "Restrict key" and enable only:
+     - Places API
+     - Maps JavaScript API
+
+3. **Set API Quotas** (recommended):
+   - Set daily quotas to prevent unexpected charges
+   - Monitor usage in Google Cloud Console
+
+### 🚨 Production Deployment Checklist
+
+Before deploying to production:
+
+- [ ] Update `ALLOWED_ORIGINS` in backend `.env` to your frontend domain(s)
+- [ ] Update `VITE_API_URL` in frontend `.env` to your backend URL
+- [ ] Configure API key restrictions in Google Cloud Console
+- [ ] Enable HTTPS for both frontend and backend
+- [ ] Review and set API quotas
+- [ ] Remove or disable console.log statements
+- [ ] Set up monitoring/logging (e.g., Sentry)
+- [ ] Configure rate limiting if needed
+- [ ] Test all error scenarios
+- [ ] Review CORS settings are production-ready
 
 ---
 
